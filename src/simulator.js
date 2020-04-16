@@ -12,17 +12,35 @@ export function nextDay(state, transitionRates) {
     };
 }
 
-export function simulate(initialState, dailyTransitionRates, lockdownPeriod, lastDay) {
-    let { transmissionWithoutLockdown, transmissionWithLockdown, recovery, death } = dailyTransitionRates;
+export function simulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, lastDay) {
+    let {
+        transmissionWithoutLockdown,
+        transmissionWithLockdown,
+        recovery,
+        deathUnderHealthcareCapacity,
+        deathOverHealthcareCapacity
+    } = dailyTransitionRates;
     let states = [];
     let state = initialState;
     for (let day = 0; day < lastDay; day++) {
         states.push(state);
         let isLockdownActive = lockdownPeriod.start <= day && day < lockdownPeriod.end;
         let transmission = isLockdownActive ? transmissionWithLockdown : transmissionWithoutLockdown;
+        let death = calculateDeathRate(
+            state.infected,
+            healthcareCapacity,
+            deathUnderHealthcareCapacity,
+            deathOverHealthcareCapacity);
         let transitionRates = { transmission, recovery, death };
         state = nextDay(state, transitionRates);
     }
     states.push(state);
     return states;
+}
+
+function calculateDeathRate(infected, capacity, rateUnderCapacity, rateOverCapacity) {
+    if (infected > capacity) {
+        return (capacity * rateUnderCapacity + (infected - capacity) * rateOverCapacity) / infected;
+    }
+    return rateUnderCapacity;
 }
