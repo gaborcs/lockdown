@@ -22,7 +22,11 @@ const simulatedStates = simulate(initialState, dailyTransitionRates, lockdownPer
 
 function Chart(props) {
   useEffect(() => {
-    d3Chart.draw(simulatedStates, lockdownPeriod);
+    d3Chart.draw();
+    d3Chart.update(simulatedStates, lockdownPeriod);
+    window.addEventListener("resize", () => {
+      d3Chart.update(simulatedStates, lockdownPeriod);
+    });
   });
   return <svg {...props}></svg>;
 }
