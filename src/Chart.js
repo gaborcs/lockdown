@@ -23,11 +23,15 @@ const lastDay = 400;
 const simulatedStates = simulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, lastDay);
 
 function Chart(props) {
-  useEffect(() => {
+  function render() {
     d3Chart.render(simulatedStates, lockdownPeriod);
-    window.addEventListener("resize", () => {
-      d3Chart.render(simulatedStates, lockdownPeriod);
-    });
+  }
+  useEffect(() => {
+    render();
+    window.addEventListener("resize", render);
+    return () => {
+      window.removeEventListener("resize", render);
+    }
   });
   return <svg {...props}></svg>;
 }
