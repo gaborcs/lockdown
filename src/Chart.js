@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 const d3Chart = require("./d3-chart");
 const { simulate } = require("./simulator");
 
@@ -15,17 +15,17 @@ const dailyTransitionRates = {
   deathOverHealthcareCapacity: 0.0014
 };
 let healthcareCapacity = 0.1;
-const lockdownPeriod = {
-  start: 55,
-  end: 145
-};
 const lastDay = 400;
-const simulatedStates = simulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, lastDay);
 
 function Chart(props) {
+  const [lockdownPeriod, setLockdownPeriod] = useState({
+    start: 55,
+    end: 145
+  });
+  const simulatedStates = simulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, lastDay);
   const ref = useRef();
   function render() {
-    d3Chart.render(ref.current, simulatedStates, lockdownPeriod);
+    d3Chart.render(ref.current, simulatedStates, lockdownPeriod, setLockdownPeriod);
   }
   useEffect(() => {
     render();

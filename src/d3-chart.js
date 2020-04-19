@@ -1,6 +1,9 @@
+import {event as currentEvent} from 'd3-selection';
+
 const d3 = Object.assign(
   {},
   require("d3-axis"),
+  require("d3-drag"),
   require("d3-format"),
   require("d3-scale"),
   require("d3-selection"),
@@ -19,7 +22,7 @@ const datasets = [
 
 let mousePos = [0, 0];
 
-export function render(container, simulatedStates, lockdownPeriod) {
+export function render(container, simulatedStates, lockdownPeriod, setLockdownPeriod) {
   let lastDay = simulatedStates.length - 1;
   let boundingRect = container.getBoundingClientRect();
   let width = boundingRect.width;
@@ -40,16 +43,16 @@ export function render(container, simulatedStates, lockdownPeriod) {
     .attr("height", "100%")
     .on("mousemove", () => {
       mousePos = d3.mouse(container);
-      render(container, simulatedStates, lockdownPeriod);
+      render(container, simulatedStates, lockdownPeriod, setLockdownPeriod);
     })
     .on("mouseleave", () => {
       mousePos = [0, 0];
-      render(container, simulatedStates, lockdownPeriod);
+      render(container, simulatedStates, lockdownPeriod, setLockdownPeriod);
     })
     .call(xAxis(scales))
     .call(yAxis(scales))
     .call(lines(simulatedStates, scales))
-    .call(lockdownIndicators(lockdownPeriod, scales.x, height))
+    .call(lockdownIndicators(lockdownPeriod, setLockdownPeriod, scales.x, height))
     .call(dayHighlighter(shouldRenderTooltip, scales.x(highlightedDay), height));
   containerSelection
     .call(tooltip(shouldRenderTooltip, highlightedDay, highlightedState, scales.x, mousePos[1]));
@@ -89,23 +92,44 @@ const lines = (simulatedStates, scales) => selection => {
     });
 }
 
-const lockdownIndicators = (lockdownPeriod, xScale, svgHeight) => selection => {
+const lockdownIndicators = (lockdownPeriod, setLockdownPeriod, xScale, svgHeight) => selection => {
+  function createXLink(key) {
+    return {
+      x: xScale(lockdownPeriod[key]),
+      setX: newX => {
+        let newLockdownPeriod = {
+          ...lockdownPeriod,
+          [key]: Math.round(xScale.invert(newX))
+        };
+        if (newLockdownPeriod.end < newLockdownPeriod.start) {
+          newLockdownPeriod = {
+            start: newLockdownPeriod.end,
+            end: newLockdownPeriod.start
+          };
+        }
+        setLockdownPeriod(newLockdownPeriod);
+      }
+    };
+  }
   selection.selectAll(".lockdown-indicator")
-    .data([lockdownPeriod.start, lockdownPeriod.end].map(xScale))
+    .data(["start", "end"])
     .join("g")
     .attr("class", "lockdown-indicator")
-    .call(lockdownIndicator(svgHeight))
+    .each(function (key) {
+      d3.select(this).call(lockdownIndicator(createXLink(key), svgHeight));
+    });
 }
 
-const lockdownIndicator = svgHeight => selection => {
+const lockdownIndicator = (xLink, svgHeight) => selection => {
   selection
-    .call(lock)
-    .call(lockdownLine(svgHeight));
+    .call(lock(xLink))
+    .call(lockdownLine(xLink.x, svgHeight));
 }
 
-const lock = selection => {
+const lock = xLink => selection => {
+  let { x, setX } = xLink;
   selection.selectAll(".lock")
-    .data(x => [x])
+    .data([null])
     .join(
       enter => {
         let g = enter.append("g")
@@ -126,17 +150,20 @@ const lock = selection => {
         return g;
       }
     )
-    .attr("transform", x => `translate(${x},${padding - lockRectHeight})`);
+    .attr("transform", `translate(${x},${padding - lockRectHeight})`)
+    .call(d3.drag().on("drag", () => {
+      setX(currentEvent.x);
+    }));
 }
 
-const lockdownLine = svgHeight => selection => {
+const lockdownLine = (x, svgHeight) => selection => {
   selection.selectAll("line")
-    .data(x => [x])
+    .data([null])
     .join("line")
     .attr("stroke", "black")
     .attr("stroke-dasharray", "3 3")
-    .attr("x1", x => x).attr("y1", padding)
-    .attr("x2", x => x).attr("y2", svgHeight - padding);
+    .attr("x1", x).attr("y1", padding)
+    .attr("x2", x).attr("y2", svgHeight - padding);
 }
 
 const dayHighlighter = (shouldRender, x, svgHeight) => selection => {
