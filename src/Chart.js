@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 const d3Chart = require("./d3-chart");
 const { simulate } = require("./simulator");
 
@@ -23,8 +23,9 @@ const lastDay = 400;
 const simulatedStates = simulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, lastDay);
 
 function Chart(props) {
+  const ref = useRef();
   function render() {
-    d3Chart.render(simulatedStates, lockdownPeriod);
+    d3Chart.render(ref.current, simulatedStates, lockdownPeriod);
   }
   useEffect(() => {
     render();
@@ -33,7 +34,7 @@ function Chart(props) {
       window.removeEventListener("resize", render);
     }
   });
-  return <svg {...props}></svg>;
+  return <div ref={ref} {...props}></div>;
 }
 
 export default Chart;
