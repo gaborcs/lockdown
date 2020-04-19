@@ -1,6 +1,6 @@
 {
   "short_name": "Lockdown",
-  "name": "Lockdown: Impact on the spread of an epidemic",
+  "name": "Lockdown: Impact on an epidemic curve",
   "icons": [
     {
       "src": "favicon.ico",

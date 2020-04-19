@@ -14,7 +14,7 @@ function App() {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6">
-            Lockdown: Impact on the spread of an epidemic
+            Lockdown: Impact on an epidemic curve
           </Typography>
         </Toolbar>
       </AppBar>
