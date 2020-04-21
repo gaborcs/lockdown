@@ -151,7 +151,8 @@ const lock = xLink => selection => {
           .attr("x", -lockRectWidth / 2)
           .attr("width", lockRectWidth)
           .attr("height", lockRectHeight)
-          .style("fill", "goldenrod");
+          .style("fill", "goldenrod")
+          .style("stroke", "gray");
         return g;
       }
     )
