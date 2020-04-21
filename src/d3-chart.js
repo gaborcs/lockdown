@@ -43,8 +43,7 @@ export function render(container, simulatedStates, lockdownPeriod, setLockdownPe
     .data([null])
     .join("svg");
   svg
-    .attr("width", "100%")
-    .attr("height", "100%")
+    .attr("viewBox", `0 0 ${width} ${height}`)
     .on("mousemove", () => {
       mousePos = d3.mouse(container);
       render(container, simulatedStates, lockdownPeriod, setLockdownPeriod);
