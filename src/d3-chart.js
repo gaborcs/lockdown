@@ -9,9 +9,13 @@ const d3 = Object.assign(
   require("d3-selection"),
   require("d3-shape"));
 
-const padding = 48;
+const paddingTop = 64;
+const paddingLeft = 48;
+const paddingRight = 48;
+const paddingBottom = 48;
 const lockRectWidth = 28;
 const lockRectHeight = 24;
+const lockdownArrowHeight = 16;
 
 const datasets = [
   { title: "Susceptible", color: "darkorange", getValue: s => 1 - s.infected - s.recovered - s.dead },
@@ -28,10 +32,10 @@ export function render(container, simulatedStates, lockdownPeriod, setLockdownPe
   let width = boundingRect.width;
   let height = boundingRect.height;
   let scales = {
-    x: d3.scaleLinear([0, lastDay], [padding, width - padding]).clamp(true),
-    y: d3.scaleLinear([0, 1], [height - padding, padding])
+    x: d3.scaleLinear([0, lastDay], [paddingLeft, width - paddingRight]).clamp(true),
+    y: d3.scaleLinear([0, 1], [height - paddingBottom, paddingTop])
   };
-  let shouldRenderTooltip = padding <= mousePos[1] && mousePos[1] < height - padding;
+  let shouldRenderTooltip = paddingTop <= mousePos[1] && mousePos[1] < height - paddingBottom;
   let highlightedDay = Math.round(scales.x.invert(mousePos[0]));
   let highlightedState = simulatedStates[highlightedDay];
   let containerSelection = d3.select(container);
@@ -53,6 +57,7 @@ export function render(container, simulatedStates, lockdownPeriod, setLockdownPe
     .call(yAxis(scales))
     .call(lines(simulatedStates, scales))
     .call(lockdownIndicators(lockdownPeriod, setLockdownPeriod, scales.x, height))
+    .call(lockdownArrow(scales.x(lockdownPeriod.start), scales.x(lockdownPeriod.end)))
     .call(dayHighlighter(shouldRenderTooltip, scales.x(highlightedDay), height));
   containerSelection
     .call(tooltip(shouldRenderTooltip, highlightedDay, highlightedState, scales.x, mousePos[1]));
@@ -150,7 +155,7 @@ const lock = xLink => selection => {
         return g;
       }
     )
-    .attr("transform", `translate(${x},${padding - lockRectHeight})`)
+    .attr("transform", `translate(${x},${paddingTop - lockdownArrowHeight - lockRectHeight})`)
     .call(d3.drag().on("drag", () => {
       setX(currentEvent.x);
     }));
@@ -162,8 +167,31 @@ const lockdownLine = (x, svgHeight) => selection => {
     .join("line")
     .attr("stroke", "black")
     .attr("stroke-dasharray", "3 3")
-    .attr("x1", x).attr("y1", padding)
-    .attr("x2", x).attr("y2", svgHeight - padding);
+    .attr("x1", x).attr("y1", paddingTop - lockdownArrowHeight)
+    .attr("x2", x).attr("y2", svgHeight - paddingBottom);
+}
+
+const lockdownArrow = (x1, x2) => selection => {
+  let size = 6;
+  let g = selection.selectAll(".lockdown-arrow")
+    .data([null])
+    .join("g")
+    .attr("class", "lockdown-arrow")
+    .attr("transform", `translate(0,${paddingTop - lockdownArrowHeight / 2})`)
+    .attr("stroke", "red");
+  g.selectAll("line")
+    .data([null])
+    .join("line")
+    .attr("x1", x1)
+    .attr("x2", x2)
+  let leftHead = [[x1 + size, -size], [x1, 0], [x1 + size, size]];
+  let rightHead = [[x2 - size, -size], [x2, 0], [x2 - size, size]];
+  g.selectAll("path")
+    .data([leftHead, rightHead])
+    .join("path")
+    .attr("d", d3.line())
+    .attr("fill", "none")
+    .attr("stroke-width", "2px");
 }
 
 const dayHighlighter = (shouldRender, x, svgHeight) => selection => {
@@ -172,8 +200,8 @@ const dayHighlighter = (shouldRender, x, svgHeight) => selection => {
     .join("line")
     .attr("class", "day-highlighter")
     .attr("stroke", "lightgray")
-    .attr("x1", x).attr("y1", padding)
-    .attr("x2", x).attr("y2", svgHeight - padding);
+    .attr("x1", x).attr("y1", paddingTop)
+    .attr("x2", x).attr("y2", svgHeight - paddingBottom);
 }
 
 const tooltip = (shouldRender, day, state, xScale, mouseY) => selection => {
@@ -195,7 +223,7 @@ const tooltip = (shouldRender, day, state, xScale, mouseY) => selection => {
   } else {
     tooltip
       .style("left", null)
-      .style("right", `${padding + xScale.range()[1] - xScale(day)}px`)
+      .style("right", `${paddingRight + xScale.range()[1] - xScale(day)}px`)
   }
   let stats = datasets
     .map(({ title, color, getValue }) => ({ title, color, value: getValue(state) }))
