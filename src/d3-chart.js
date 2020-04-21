@@ -1,3 +1,4 @@
+import "./grabbable.css";
 import {event as currentEvent} from 'd3-selection';
 
 const d3 = Object.assign(
@@ -137,7 +138,7 @@ const lock = xLink => selection => {
     .join(
       enter => {
         let g = enter.append("g")
-          .attr("class", "lock")
+          .attr("class", "lock grabbable")
         let arc = d3.arc()
           .innerRadius(9)
           .outerRadius(12)
