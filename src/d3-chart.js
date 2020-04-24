@@ -165,11 +165,14 @@ const lock = xLink => selection => {
       }
     )
     .attr("transform", `translate(${x},${paddingTop - lockdownArrowHeight - lockRectHeight})`)
-    .on("mousedown", () => {
-      g.classed("dragging", true);
+    .on("contextmenu", () => {
+      currentEvent.preventDefault();
     })
     .on("touchmove", () => {
       setX(currentEvent.touches[0].clientX);
+    })
+    .on("mousedown", () => {
+      g.classed("dragging", true);
     });
   updateMouseMoveListener(g.node(), event => {
     if (g.classed("dragging")) {
