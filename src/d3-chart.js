@@ -154,6 +154,13 @@ const lock = xLink => selection => {
           .attr("height", lockRectHeight)
           .style("fill", "goldenrod")
           .style("stroke", "gray");
+        g.append("rect")
+          .attr("class", "touch-target")
+          .attr("x", "-24px")
+          .attr("y", "-16px")
+          .attr("width", "48px")
+          .attr("height", "48px")
+          .attr("opacity", 0)
         return g;
       }
     )
