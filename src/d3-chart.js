@@ -168,8 +168,14 @@ const lock = xLink => selection => {
     .on("contextmenu", () => {
       currentEvent.preventDefault();
     })
+    .on("touchstart", () => {
+      document.body.style.userSelect = "none";
+    })
     .on("touchmove", () => {
       setX(currentEvent.touches[0].clientX);
+    })
+    .on("touchend", () => {
+      document.body.style.userSelect = "auto";
     })
     .on("mousedown", () => {
       g.classed("dragging", true);
