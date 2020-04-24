@@ -102,14 +102,15 @@ const lockdownIndicators = (lockdownPeriod, setLockdownPeriod, xScale, svgHeight
     return {
       x: xScale(lockdownPeriod[key]),
       setX: newX => {
+        let day = Math.round(xScale.invert(newX));
         let newLockdownPeriod = {
           ...lockdownPeriod,
-          [key]: Math.round(xScale.invert(newX))
+          [key]: day
         };
         if (newLockdownPeriod.end < newLockdownPeriod.start) {
           newLockdownPeriod = {
-            start: newLockdownPeriod.end,
-            end: newLockdownPeriod.start
+            start: day,
+            end: day
           };
         }
         setLockdownPeriod(newLockdownPeriod);
@@ -133,7 +134,7 @@ const lockdownIndicator = (xLink, svgHeight) => selection => {
 
 const lock = xLink => selection => {
   let { x, setX } = xLink;
-  selection.selectAll(".lock")
+  let g = selection.selectAll(".lock")
     .data([null])
     .join(
       enter => {
@@ -157,13 +158,33 @@ const lock = xLink => selection => {
       }
     )
     .attr("transform", `translate(${x},${paddingTop - lockdownArrowHeight - lockRectHeight})`)
-    // d3-drag's touch support doesn't seem to work well, so it's only used for mouse events
-    .call(d3.drag().touchable(() => false).on("drag", () => {
-      setX(currentEvent.x);
-    }))
+    .on("mousedown", () => {
+      g.classed("dragging", true);
+    })
     .on("touchmove", () => {
       setX(currentEvent.touches[0].clientX);
     });
+  updateMouseMoveListener(g.node(), event => {
+    if (g.classed("dragging")) {
+      setX(event.clientX);
+      event.preventDefault();
+    }
+  });
+  updateMouseUpListener(g.node(), () => {
+    g.classed("dragging", false);
+  });
+};
+
+function updateMouseMoveListener(node, newMouseMoveListener) {
+  window.removeEventListener("mousemove", node.mouseMoveListener);
+  node.mouseMoveListener = newMouseMoveListener;
+  window.addEventListener("mousemove", newMouseMoveListener);
+}
+
+function updateMouseUpListener(node, newMouseUpListener) {
+  window.removeEventListener("mouseup", node.mouseUpListener);
+  node.mouseUpListener = newMouseUpListener;
+  window.addEventListener("mouseup", newMouseUpListener);
 }
 
 const lockdownLine = (x, svgHeight) => selection => {
