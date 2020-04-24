@@ -169,40 +169,55 @@ const lock = xLink => selection => {
       currentEvent.preventDefault();
     })
     .on("touchstart", () => {
+      g.classed("dragging", true);
       document.body.style.userSelect = "none";
       setX(currentEvent.touches[0].clientX);
     })
-    .on("touchmove", () => {
-      setX(currentEvent.touches[0].clientX);
-    })
-    .on("touchend", () => {
-      document.body.style.userSelect = "auto";
-    })
     .on("mousedown", () => {
       g.classed("dragging", true);
+      document.body.style.userSelect = "none";
       setX(currentEvent.clientX);
     });
+  updateTouchMoveListener(g.node(), event => {
+    if (g.classed("dragging")) {
+      setX(event.touches[0].clientX);
+    }
+  });
   updateMouseMoveListener(g.node(), event => {
     if (g.classed("dragging")) {
       setX(event.clientX);
-      event.preventDefault();
     }
   });
-  updateMouseUpListener(g.node(), () => {
+  let stopDragging = () => {
     g.classed("dragging", false);
-  });
+    document.body.style.userSelect = "auto";
+  };
+  updateTouchEndListener(g.node(), stopDragging);
+  updateMouseUpListener(g.node(), stopDragging);
 };
 
-function updateMouseMoveListener(node, newMouseMoveListener) {
-  window.removeEventListener("mousemove", node.mouseMoveListener);
-  node.mouseMoveListener = newMouseMoveListener;
-  window.addEventListener("mousemove", newMouseMoveListener);
+function updateTouchMoveListener(node, newListener) {
+  window.removeEventListener("touchmove", node.touchMoveListener);
+  node.touchMoveListener = newListener;
+  window.addEventListener("touchmove", newListener);
 }
 
-function updateMouseUpListener(node, newMouseUpListener) {
+function updateTouchEndListener(node, newListener) {
+  window.removeEventListener("touchend", node.touchEndListener);
+  node.touchEndListener = newListener;
+  window.addEventListener("touchend", newListener);
+}
+
+function updateMouseMoveListener(node, newListener) {
+  window.removeEventListener("mousemove", node.mouseMoveListener);
+  node.mouseMoveListener = newListener;
+  window.addEventListener("mousemove", newListener);
+}
+
+function updateMouseUpListener(node, newListener) {
   window.removeEventListener("mouseup", node.mouseUpListener);
-  node.mouseUpListener = newMouseUpListener;
-  window.addEventListener("mouseup", newMouseUpListener);
+  node.mouseUpListener = newListener;
+  window.addEventListener("mouseup", newListener);
 }
 
 const lockdownLine = (x, svgHeight) => selection => {
