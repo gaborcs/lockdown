@@ -157,9 +157,13 @@ const lock = xLink => selection => {
       }
     )
     .attr("transform", `translate(${x},${paddingTop - lockdownArrowHeight - lockRectHeight})`)
-    .call(d3.drag().on("drag", () => {
+    // d3-drag's touch support doesn't seem to work well, so it's only used for mouse events
+    .call(d3.drag().touchable(() => false).on("drag", () => {
       setX(currentEvent.x);
-    }));
+    }))
+    .on("touchmove", () => {
+      setX(currentEvent.touches[0].clientX);
+    });
 }
 
 const lockdownLine = (x, svgHeight) => selection => {
