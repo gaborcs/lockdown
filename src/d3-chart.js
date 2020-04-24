@@ -170,6 +170,7 @@ const lock = xLink => selection => {
     })
     .on("touchstart", () => {
       document.body.style.userSelect = "none";
+      setX(currentEvent.touches[0].clientX);
     })
     .on("touchmove", () => {
       setX(currentEvent.touches[0].clientX);
@@ -179,6 +180,7 @@ const lock = xLink => selection => {
     })
     .on("mousedown", () => {
       g.classed("dragging", true);
+      setX(currentEvent.clientX);
     });
   updateMouseMoveListener(g.node(), event => {
     if (g.classed("dragging")) {
