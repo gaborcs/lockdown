@@ -154,6 +154,7 @@ const lock = xLink => selection => {
           .attr("height", lockRectHeight)
           .style("fill", "goldenrod")
           .style("stroke", "gray");
+        g.call(dragHandle);
         g.append("rect")
           .attr("class", "touch-target")
           .attr("x", "-24px")
@@ -220,10 +221,28 @@ function updateMouseUpListener(node, newListener) {
   window.addEventListener("mouseup", newListener);
 }
 
+const dragHandle = selection => {
+  let g = selection.append("g")
+    .attr("transform", `translate(0,${lockRectHeight / 2})`)
+    .attr("fill", "gray");
+  g.append("line")
+    .attr("y1", -7)
+    .attr("y2", 7)
+    .attr("stroke", "gray")
+    .attr("stroke-width", 2);
+  g.append("polygon")
+    .attr("transform", "translate(-5,0)")
+    .attr("points", "0,-4 -4,0 0,4");
+  g.append("polygon")
+    .attr("transform", "translate(5,0)")
+    .attr("points", "0,-4 4,0 0,4");
+}
+
 const lockdownLine = (x, svgHeight) => selection => {
-  selection.selectAll("line")
+  selection.selectAll(".lockdown-line")
     .data([null])
     .join("line")
+    .attr("class", "lockdown-line")
     .attr("stroke", "black")
     .attr("stroke-dasharray", "3 3")
     .attr("x1", x).attr("y1", paddingTop - lockdownArrowHeight)
