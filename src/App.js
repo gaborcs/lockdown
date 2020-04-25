@@ -5,6 +5,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
+import InputAdornment from '@material-ui/core/InputAdornment';
 import TextField from '@material-ui/core/TextField';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
@@ -53,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
 function App() {
   let classes = useStyles();
   let [drawerOpen, setDrawerOpen] = React.useState(false);
+  let [infectedPercentOnDay0, setInfectedPercentOnDay0] = React.useState("0.0001");
   let [lastDay, setLastDay] = React.useState(400);
   return (
     <ThemeProvider theme={theme}>
@@ -73,7 +75,11 @@ function App() {
             </IconButton>
           </Toolbar>
         </AppBar>
-        <Chart lastDay={lastDay} className={classes.chart} />
+        <Chart
+          infectedOnDay0={infectedPercentOnDay0 / 100}
+          lastDay={lastDay}
+          className={classes.chart}
+        />
         <Drawer
           variant="persistent"
           anchor="right"
@@ -92,6 +98,18 @@ function App() {
             </IconButton>
           </div>
           <Divider />
+          <TextField
+            label="Infected on day 0"
+            variant="outlined"
+            value={infectedPercentOnDay0}
+            onChange={event => {
+              setInfectedPercentOnDay0(event.target.value);
+            }}
+            className={classes.textField}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">%</InputAdornment>,
+            }}
+          />
           <TextField
             label="Last day of simulation"
             type="number"

@@ -2,11 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 const d3Chart = require("./d3-chart");
 const { simulate } = require("./simulator");
 
-const initialState = {
-  infected: 0.000001,
-  recovered: 0,
-  dead: 0
-};
 const dailyTransitionRates = {
   transmissionWithoutLockdown: 0.3,
   transmissionWithLockdown: 0.1,
@@ -17,7 +12,12 @@ const dailyTransitionRates = {
 let healthcareCapacity = 0.1;
 
 function Chart(props) {
-  let { lastDay, ...otherProps } = props;
+  let { infectedOnDay0, lastDay, ...otherProps } = props;
+  const initialState = {
+    infected: infectedOnDay0,
+    recovered: 0,
+    dead: 0
+  };
   const [lockdownPeriod, setLockdownPeriod] = useState({
     start: 55,
     end: 145
