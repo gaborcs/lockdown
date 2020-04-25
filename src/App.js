@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden"
   },
   drawerPaper: {
-    width: 250
+    width: 320
   },
   drawerHeader: {
     display: 'flex',
@@ -55,7 +55,27 @@ function App() {
   let classes = useStyles();
   let [drawerOpen, setDrawerOpen] = React.useState(false);
   let [infectedPercentOnDay0, setInfectedPercentOnDay0] = React.useState("0.0001");
+  let [dailyTransitionRates, setDailyTransitionRates] = React.useState({
+    transmissionWithoutLockdown: "0.3",
+    transmissionWithLockdown: "0.1",
+    recovery: "0.07",
+    deathUnderHealthcareCapacity: "0.0007",
+    deathOverHealthcareCapacity: "0.0014"
+  });
   let [lastDay, setLastDay] = React.useState(400);
+  let renderTransitionRateField = (key, label) => (
+    <Field
+      label={label}
+      value={dailyTransitionRates[key]}
+      setValue={transitionRateSetter(key)}
+    />
+  );
+  let transitionRateSetter = key => value => {
+    setDailyTransitionRates({
+      ...dailyTransitionRates,
+      [key]: value
+    });
+  };
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -77,6 +97,7 @@ function App() {
         </AppBar>
         <Chart
           infectedOnDay0={infectedPercentOnDay0 / 100}
+          dailyTransitionRates={dailyTransitionRates}
           lastDay={lastDay}
           className={classes.chart}
         />
@@ -98,32 +119,46 @@ function App() {
             </IconButton>
           </div>
           <Divider />
-          <TextField
+          <Field
             label="Infected on day 0"
-            variant="outlined"
             value={infectedPercentOnDay0}
-            onChange={event => {
-              setInfectedPercentOnDay0(event.target.value);
-            }}
-            className={classes.textField}
+            setValue={setInfectedPercentOnDay0}
             InputProps={{
               endAdornment: <InputAdornment position="end">%</InputAdornment>,
             }}
           />
-          <TextField
+          {renderTransitionRateField("transmissionWithoutLockdown", "Transmission rate without lockdown")}
+          {renderTransitionRateField("transmissionWithLockdown", "Transmission rate with lockdown")}
+          {renderTransitionRateField("recovery", "Recovery rate")}
+          {renderTransitionRateField("deathUnderHealthcareCapacity", "Death rate under healthcare capacity")}
+          {renderTransitionRateField("deathOverHealthcareCapacity", "Death rate over healthcare capacity")}
+          <Field
             label="Last day of simulation"
             type="number"
-            variant="outlined"
             value={lastDay}
-            onChange={event => {
-              setLastDay(event.target.value)
-            }}
-            className={classes.textField}
+            setValue={setLastDay}
           />
         </Drawer>
       </div>
     </ThemeProvider>
   );
 }
+
+function Field(props) {
+  let { setValue, ...otherProps } = props;
+  let classes = useStyles();
+  return (
+    <TextField
+      variant="outlined"
+      onChange={changeHandler(setValue)}
+      className={classes.textField}
+      {...otherProps}
+    />
+  );
+}
+
+const changeHandler = setValue => event => {
+  setValue(event.target.value);
+};
 
 export default App;
