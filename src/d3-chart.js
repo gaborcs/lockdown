@@ -4,7 +4,6 @@ import {event as currentEvent} from 'd3-selection';
 const d3 = Object.assign(
   {},
   require("d3-axis"),
-  require("d3-drag"),
   require("d3-format"),
   require("d3-scale"),
   require("d3-selection"),
