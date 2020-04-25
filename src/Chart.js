@@ -15,9 +15,9 @@ const dailyTransitionRates = {
   deathOverHealthcareCapacity: 0.0014
 };
 let healthcareCapacity = 0.1;
-const lastDay = 400;
 
 function Chart(props) {
+  let { lastDay, ...otherProps } = props;
   const [lockdownPeriod, setLockdownPeriod] = useState({
     start: 55,
     end: 145
@@ -34,7 +34,7 @@ function Chart(props) {
       window.removeEventListener("resize", render);
     }
   });
-  return <div ref={ref} {...props}></div>;
+  return <div ref={ref} {...otherProps}></div>;
 }
 
 export default Chart;
