@@ -118,21 +118,25 @@ function App() {
             label="Infected on day 0"
             value={infectedPercentOnDay0}
             setValue={setInfectedPercentOnDay0}
+            inputProps={{ step: 0.0001, min: 0, max: 100 }}
           />
           <Field
             label="R0 without lockdown"
             value={r0WithoutLockdown}
             setValue={setR0WithoutLockdown}
+            inputProps={{ step: 0.1, min: 0 }}
           />
           <Field
             label="R0 with lockdown"
             value={r0WithLockdown}
             setValue={setR0WithLockdown}
+            inputProps={{ step: 0.1, min: 0 }}
           />
           <Field
             label="Average recovery time"
             value={averageRecoveryTime}
             setValue={setAverageRecoveryTime}
+            inputProps={{ step: 1, min: 0 }}
             InputProps={{
               endAdornment: <InputAdornment position="end">days</InputAdornment>,
             }}
@@ -141,22 +145,25 @@ function App() {
             label="Fatality (IFR) under healthcare capacity"
             value={ifrPercentUnderHealthcareCapacity}
             setValue={setIfrPercentUnderHealthcareCapacity}
+            inputProps={{ step: 0.1, min: 0, max: 100 }}
           />
           <PercentageField
             label="Fatality (IFR) over healthcare capacity"
             value={ifrPercentOverHealthcareCapacity}
             setValue={setIfrPercentOverHealthcareCapacity}
+            inputProps={{ step: 0.1, min: 0, max: 100 }}
           />
           <PercentageField
             label="Healthcare capacity"
             value={healthcareCapacityPercent}
             setValue={setHealthcareCapacityPercent}
+            inputProps={{ step: 1, min: 0, max: 100 }}
           />
           <Field
             label="Last day of simulation"
-            type="number"
             value={lastDay}
             setValue={setLastDay}
+            inputProps={{ step: 1, min: 10 }}
           />
         </Drawer>
       </div>
@@ -180,6 +187,7 @@ function Field(props) {
   let classes = useStyles();
   return (
     <TextField
+      type="number"
       variant="outlined"
       onChange={changeHandler(setValue)}
       className={classes.textField}
