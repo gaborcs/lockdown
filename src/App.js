@@ -47,8 +47,11 @@ const useStyles = makeStyles((theme) => ({
     ...theme.mixins.toolbar,
     justifyContent: 'flex-start',
   },
+  divider: {
+    marginBottom: 12
+  },
   textField: {
-    margin: theme.spacing(2, 2),
+    margin: "12px 16px"
   }
 }));
 
@@ -113,7 +116,7 @@ function App() {
               <ChevronRightIcon />
             </IconButton>
           </div>
-          <Divider />
+          <Divider className={classes.divider} />
           <PercentageField
             label="Infected on day 0"
             value={infectedPercentOnDay0}
