@@ -4,6 +4,6 @@ import App from './App';
 
 test('renders title', () => {
   const { getByText } = render(<App />);
-  const element = getByText(/Lockdown/i);
+  const element = getByText(/Lockdown: Impact/i);
   expect(element).toBeInTheDocument();
 });
