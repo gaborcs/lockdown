@@ -1,3 +1,23 @@
+export function calculateDailyTransitionRates(params) {
+  let {
+    averageRecoveryTime,
+    r0WithoutLockdown,
+    r0WithLockdown,
+    ifrUnderHealthcareCapacity,
+    ifrOverHealthcareCapacity
+  } = params;
+  let recovery = 1 / averageRecoveryTime;
+  return {
+    recovery,
+    transmissionWithoutLockdown: r0WithoutLockdown / averageRecoveryTime,
+    transmissionWithLockdown: r0WithLockdown / averageRecoveryTime,
+    deathUnderHealthcareCapacity: deathToRecoveryRatio(ifrUnderHealthcareCapacity) * recovery,
+    deathOverHealthcareCapacity: deathToRecoveryRatio(ifrOverHealthcareCapacity) * recovery
+  }
+};
+
+const deathToRecoveryRatio = ifr => ifr / (1 - ifr);
+
 export function simulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, lastDay) {
   let states = [];
   let state = initialState;

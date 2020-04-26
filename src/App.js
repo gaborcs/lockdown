@@ -12,6 +12,7 @@ import Typography from '@material-ui/core/Typography';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import SettingsIcon from '@material-ui/icons/Settings';
 import Chart from './Chart';
+import { calculateDailyTransitionRates } from './simulator';
 
 const theme = createMuiTheme({
   palette: {
@@ -55,28 +56,20 @@ function App() {
   let classes = useStyles();
   let [drawerOpen, setDrawerOpen] = useState(false);
   let [infectedPercentOnDay0, setInfectedPercentOnDay0] = useState("0.0001");
-  let [dailyTransitionRates, setDailyTransitionRates] = useState({
-    transmissionWithoutLockdown: "0.3",
-    transmissionWithLockdown: "0.1",
-    recovery: "0.07",
-    deathUnderHealthcareCapacity: "0.0007",
-    deathOverHealthcareCapacity: "0.0014"
-  });
+  let [averageRecoveryTime, setAverageRecoveryTime] = useState("14");
+  let [r0WithoutLockdown, setR0WithoutLockdown] = useState("2.5");
+  let [r0WithLockdown, setR0WithLockdown] = useState("1.3");
+  let [ifrPercentUnderHealthcareCapacity, setIfrPercentUnderHealthcareCapacity] = useState("1.0");
+  let [ifrPercentOverHealthcareCapacity, setIfrPercentOverHealthcareCapacity] = useState("2.0");
   let [healthcareCapacityPercent, setHealthcareCapacityPercent] = useState("10");
-  let [lastDay, setLastDay] = useState("400");
-  let renderTransitionRateField = (key, label) => (
-    <Field
-      label={label}
-      value={dailyTransitionRates[key]}
-      setValue={transitionRateSetter(key)}
-    />
-  );
-  let transitionRateSetter = key => value => {
-    setDailyTransitionRates({
-      ...dailyTransitionRates,
-      [key]: value
-    });
-  };
+  let [lastDay, setLastDay] = useState("500");
+  let dailyTransitionRates = calculateDailyTransitionRates({
+    averageRecoveryTime: +averageRecoveryTime,
+    r0WithoutLockdown: +r0WithoutLockdown,
+    r0WithLockdown: +r0WithLockdown,
+    ifrUnderHealthcareCapacity: ifrPercentUnderHealthcareCapacity / 100,
+    ifrOverHealthcareCapacity: ifrPercentOverHealthcareCapacity / 100
+  });
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -126,11 +119,34 @@ function App() {
             value={infectedPercentOnDay0}
             setValue={setInfectedPercentOnDay0}
           />
-          {renderTransitionRateField("transmissionWithoutLockdown", "Transmission rate without lockdown")}
-          {renderTransitionRateField("transmissionWithLockdown", "Transmission rate with lockdown")}
-          {renderTransitionRateField("recovery", "Recovery rate")}
-          {renderTransitionRateField("deathUnderHealthcareCapacity", "Death rate under healthcare capacity")}
-          {renderTransitionRateField("deathOverHealthcareCapacity", "Death rate over healthcare capacity")}
+          <Field
+            label="R0 without lockdown"
+            value={r0WithoutLockdown}
+            setValue={setR0WithoutLockdown}
+          />
+          <Field
+            label="R0 with lockdown"
+            value={r0WithLockdown}
+            setValue={setR0WithLockdown}
+          />
+          <Field
+            label="Average recovery time"
+            value={averageRecoveryTime}
+            setValue={setAverageRecoveryTime}
+            InputProps={{
+              endAdornment: <InputAdornment position="end">days</InputAdornment>,
+            }}
+          />
+          <PercentageField
+            label="Fatality (IFR) under healthcare capacity"
+            value={ifrPercentUnderHealthcareCapacity}
+            setValue={setIfrPercentUnderHealthcareCapacity}
+          />
+          <PercentageField
+            label="Fatality (IFR) over healthcare capacity"
+            value={ifrPercentOverHealthcareCapacity}
+            setValue={setIfrPercentOverHealthcareCapacity}
+          />
           <PercentageField
             label="Healthcare capacity"
             value={healthcareCapacityPercent}

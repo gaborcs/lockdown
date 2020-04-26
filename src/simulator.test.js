@@ -1,4 +1,25 @@
-import { simulate } from "./simulator";
+import { calculateDailyTransitionRates, simulate } from "./simulator";
+
+test("calculates daily transition rates", () => {
+  let {
+    recovery,
+    transmissionWithoutLockdown,
+    transmissionWithLockdown,
+    deathUnderHealthcareCapacity,
+    deathOverHealthcareCapacity
+  } = calculateDailyTransitionRates({
+    averageRecoveryTime: 14,
+    r0WithoutLockdown: 2.5,
+    r0WithLockdown: 1.2,
+    ifrUnderHealthcareCapacity: 0.01,
+    ifrOverHealthcareCapacity: 0.02
+  });
+  expect(14 * recovery).toBe(1);
+  expect(14 * transmissionWithoutLockdown).toBe(2.5);
+  expect(14 * transmissionWithLockdown).toBe(1.2);
+  expect(deathUnderHealthcareCapacity / (recovery + deathUnderHealthcareCapacity)).toBeCloseTo(0.01, 10);
+  expect(deathOverHealthcareCapacity / (recovery + deathOverHealthcareCapacity)).toBeCloseTo(0.02, 10);
+});
 
 test("can do the simulation indefinitely", () => {
   let initialState = { infected: 0.1, recovered: 0.01, dead: 0.001 };
@@ -140,10 +161,10 @@ test("calculates recovery too", () => {
     expectedStatesAfterInitial);
 });
 
-function checkSimulate(initialState, transitionRates, healthcareCapacity, lockdownPeriod, expectedStatesAfterInitial) {
+function checkSimulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, expectedStatesAfterInitial) {
   let expectedStates = [initialState].concat(expectedStatesAfterInitial);
   let lastDay = expectedStatesAfterInitial.length;
-  let states = simulate(initialState, transitionRates, healthcareCapacity, lockdownPeriod, lastDay);
+  let states = simulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, lastDay);
   expect(states.length).toBe(expectedStates.length);
   for (let i = 0; i < expectedStates.length; i++) {
     expectClose(states[i], expectedStates[i]);

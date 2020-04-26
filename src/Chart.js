@@ -10,8 +10,8 @@ function Chart(props) {
     dead: 0
   };
   const [lockdownPeriod, setLockdownPeriod] = useState({
-    start: 55,
-    end: 145
+    start: 110,
+    end: 200
   });
   const simulatedStates = simulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, lastDay);
   const ref = useRef();
