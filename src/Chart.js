@@ -2,10 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 const d3Chart = require("./d3-chart");
 const { simulate } = require("./simulator");
 
-let healthcareCapacity = 0.1;
-
 function Chart(props) {
-  let { infectedOnDay0, dailyTransitionRates, lastDay, ...otherProps } = props;
+  let { infectedOnDay0, dailyTransitionRates, healthcareCapacity, lastDay, ...otherProps } = props;
   const initialState = {
     infected: infectedOnDay0,
     recovered: 0,

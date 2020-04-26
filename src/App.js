@@ -62,6 +62,7 @@ function App() {
     deathUnderHealthcareCapacity: "0.0007",
     deathOverHealthcareCapacity: "0.0014"
   });
+  let [healthcareCapacityPercent, setHealthcareCapacityPercent] = React.useState("10");
   let [lastDay, setLastDay] = React.useState(400);
   let renderTransitionRateField = (key, label) => (
     <Field
@@ -98,6 +99,7 @@ function App() {
         <Chart
           infectedOnDay0={infectedPercentOnDay0 / 100}
           dailyTransitionRates={dailyTransitionRates}
+          healthcareCapacity={healthcareCapacityPercent / 100}
           lastDay={lastDay}
           className={classes.chart}
         />
@@ -119,19 +121,21 @@ function App() {
             </IconButton>
           </div>
           <Divider />
-          <Field
+          <PercentageField
             label="Infected on day 0"
             value={infectedPercentOnDay0}
             setValue={setInfectedPercentOnDay0}
-            InputProps={{
-              endAdornment: <InputAdornment position="end">%</InputAdornment>,
-            }}
           />
           {renderTransitionRateField("transmissionWithoutLockdown", "Transmission rate without lockdown")}
           {renderTransitionRateField("transmissionWithLockdown", "Transmission rate with lockdown")}
           {renderTransitionRateField("recovery", "Recovery rate")}
           {renderTransitionRateField("deathUnderHealthcareCapacity", "Death rate under healthcare capacity")}
           {renderTransitionRateField("deathOverHealthcareCapacity", "Death rate over healthcare capacity")}
+          <PercentageField
+            label="Healthcare capacity"
+            value={healthcareCapacityPercent}
+            setValue={setHealthcareCapacityPercent}
+          />
           <Field
             label="Last day of simulation"
             type="number"
@@ -141,6 +145,17 @@ function App() {
         </Drawer>
       </div>
     </ThemeProvider>
+  );
+}
+
+function PercentageField(props) {
+  return (
+    <Field
+      InputProps={{
+        endAdornment: <InputAdornment position="end">%</InputAdornment>,
+      }}
+      {...props}
+    />
   );
 }
 
