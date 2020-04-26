@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -53,17 +53,17 @@ const useStyles = makeStyles((theme) => ({
 
 function App() {
   let classes = useStyles();
-  let [drawerOpen, setDrawerOpen] = React.useState(false);
-  let [infectedPercentOnDay0, setInfectedPercentOnDay0] = React.useState("0.0001");
-  let [dailyTransitionRates, setDailyTransitionRates] = React.useState({
+  let [drawerOpen, setDrawerOpen] = useState(false);
+  let [infectedPercentOnDay0, setInfectedPercentOnDay0] = useState("0.0001");
+  let [dailyTransitionRates, setDailyTransitionRates] = useState({
     transmissionWithoutLockdown: "0.3",
     transmissionWithLockdown: "0.1",
     recovery: "0.07",
     deathUnderHealthcareCapacity: "0.0007",
     deathOverHealthcareCapacity: "0.0014"
   });
-  let [healthcareCapacityPercent, setHealthcareCapacityPercent] = React.useState("10");
-  let [lastDay, setLastDay] = React.useState(400);
+  let [healthcareCapacityPercent, setHealthcareCapacityPercent] = useState("10");
+  let [lastDay, setLastDay] = useState("400");
   let renderTransitionRateField = (key, label) => (
     <Field
       label={label}
@@ -100,7 +100,7 @@ function App() {
           infectedOnDay0={infectedPercentOnDay0 / 100}
           dailyTransitionRates={dailyTransitionRates}
           healthcareCapacity={healthcareCapacityPercent / 100}
-          lastDay={lastDay}
+          lastDay={+lastDay}
           className={classes.chart}
         />
         <Drawer
