@@ -51,7 +51,8 @@ const useStyles = makeStyles((theme) => ({
   drawerBody: {
     padding: "16px 8px",
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+    overflow: "auto"
   },
   textField: {
     marginBottom: 16,
