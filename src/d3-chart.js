@@ -21,12 +21,12 @@ const datasets = [
   { title: "Susceptible", color: "darkorange", getValue: s => 1 - s.infected - s.recovered - s.dead },
   { title: "Infected", color: "blue", getValue: s => s.infected },
   { title: "Recovered", color: "green", getValue: s => s.recovered },
-  { title: "Dead", color: "red", getValue: s => s.dead }
+  { title: "Dead", color: "maroon", getValue: s => s.dead }
 ];
 
 let mousePos = [0, 0];
 
-export function render(container, simulatedStates, lockdownPeriod, setLockdownPeriod) {
+export function render(container, simulatedStates, healthcareCapacity, lockdownPeriod, setLockdownPeriod) {
   let lastDay = simulatedStates.length - 1;
   let boundingRect = container.getBoundingClientRect();
   let width = boundingRect.width;
@@ -46,15 +46,15 @@ export function render(container, simulatedStates, lockdownPeriod, setLockdownPe
     .attr("viewBox", `0 0 ${width} ${height}`)
     .on("mousemove", () => {
       mousePos = d3.mouse(container);
-      render(container, simulatedStates, lockdownPeriod, setLockdownPeriod);
+      render(container, simulatedStates, healthcareCapacity, lockdownPeriod, setLockdownPeriod);
     })
     .on("mouseleave", () => {
       mousePos = [0, 0];
-      render(container, simulatedStates, lockdownPeriod, setLockdownPeriod);
+      render(container, simulatedStates, healthcareCapacity, lockdownPeriod, setLockdownPeriod);
     })
     .call(xAxis(scales))
     .call(yAxis(scales))
-    .call(lines(simulatedStates, scales))
+    .call(lines(simulatedStates, scales, healthcareCapacity))
     .call(lockdownIndicators(lockdownPeriod, setLockdownPeriod, scales.x, height))
     .call(lockdownArrow(scales.x(lockdownPeriod.start), scales.x(lockdownPeriod.end)))
     .call(dayHighlighter(shouldRenderTooltip, scales.x(highlightedDay), height));
@@ -80,10 +80,20 @@ const yAxis = scales => selection => {
     .attr("transform", `translate(${scales.x(0)},0)`).call(axis);
 }
 
-const lines = (simulatedStates, scales) => selection => {
+const lines = (simulatedStates, scales, healthcareCapacity) => selection => {
+  let areaOverHealthcareCapacity = d3.area()
+    .x((v, i) => scales.x(i))
+    .y1(scales.y)
+    .y0(v => scales.y(Math.min(healthcareCapacity, v)));
   let line = d3.line()
     .x((v, i) => scales.x(i))
     .y(scales.y);
+  selection.selectAll(".area")
+    .data([null])
+    .join("path")
+    .attr("class", "area")
+    .style("fill", "red")
+    .attr("d", areaOverHealthcareCapacity(simulatedStates.map(s => s.infected)));
   selection.selectAll(".line")
     .data(datasets)
     .join("path")

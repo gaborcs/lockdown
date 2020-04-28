@@ -10,13 +10,13 @@ function Chart(props) {
     dead: 0
   };
   const [lockdownPeriod, setLockdownPeriod] = useState({
-    start: 110,
-    end: 200
+    start: 115,
+    end: 190
   });
   const simulatedStates = simulate(initialState, dailyTransitionRates, healthcareCapacity, lockdownPeriod, lastDay);
   const ref = useRef();
   function render() {
-    d3Chart.render(ref.current, simulatedStates, lockdownPeriod, setLockdownPeriod);
+    d3Chart.render(ref.current, simulatedStates, healthcareCapacity, lockdownPeriod, setLockdownPeriod);
   }
   useEffect(() => {
     render();

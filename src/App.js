@@ -71,7 +71,7 @@ function App() {
   let [r0WithLockdown, setR0WithLockdown] = useState("1.3");
   let [ifrPercentUnderHealthcareCapacity, setIfrPercentUnderHealthcareCapacity] = useState("1.0");
   let [ifrPercentOverHealthcareCapacity, setIfrPercentOverHealthcareCapacity] = useState("2.0");
-  let [healthcareCapacityPercent, setHealthcareCapacityPercent] = useState("10");
+  let [healthcareCapacityPercent, setHealthcareCapacityPercent] = useState("5");
   let [lastDay, setLastDay] = useState("500");
   let dailyTransitionRates = calculateDailyTransitionRates({
     averageRecoveryTime: +averageRecoveryTime,
