@@ -85,7 +85,7 @@ function App() {
       <div className={classes.root}>
         <AppBar position="static">
           <Toolbar>
-            <Typography variant="h6" className={classes.title}>
+            <Typography variant="h6" noWrap className={classes.title}>
               Lockdown: Impact on an epidemic curve
             </Typography>
             <IconButton
