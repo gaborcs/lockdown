@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createMuiTheme, makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
+import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
@@ -8,10 +9,8 @@ import IconButton from '@material-ui/core/IconButton';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Link from '@material-ui/core/Link';
 import TextField from '@material-ui/core/TextField';
-import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import SettingsIcon from '@material-ui/icons/Settings';
 import Chart from './Chart';
 import { calculateDailyTransitionRates } from './simulator';
 
@@ -29,8 +28,19 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column"
   },
+  appBar: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "baseline"
+  },
   title: {
     flexGrow: 1,
+    padding: "8px 16px"
+  },
+  button: {
+    flexShrink: 0,
+    marginRight: 8,
+    color: "white"
   },
   chart: {
     flexGrow: 1,
@@ -84,20 +94,18 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className={classes.root}>
-        <AppBar position="static">
-          <Toolbar>
-            <Typography variant="h6" noWrap className={classes.title}>
-              Lockdown: Impact on an epidemic curve
-            </Typography>
-            <IconButton
-              color="inherit"
-              onClick={() => {
-                setDrawerOpen(true);
-              }}
-            >
-              <SettingsIcon />
-            </IconButton>
-          </Toolbar>
+        <AppBar position="static" className={classes.appBar}>
+          <Typography variant="h6" className={classes.title}>
+            Lockdown: Impact on an epidemic
+          </Typography>
+          <Button
+            onClick={() => {
+              setDrawerOpen(true);
+            }}
+            className={classes.button}
+          >
+            Parameters
+          </Button>
         </AppBar>
         <Chart
           infectedOnDay0={infectedPercentOnDay0 / 100}
