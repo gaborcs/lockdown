@@ -115,9 +115,11 @@ function App() {
           className={classes.chart}
         />
         <Drawer
-          variant="persistent"
           anchor="right"
           open={drawerOpen}
+          onClose={() => {
+            setDrawerOpen(false);
+          }}
           classes={{
             paper: classes.drawerPaper
           }}
