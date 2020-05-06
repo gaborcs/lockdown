@@ -24,7 +24,7 @@ const datasets = [
   { title: "Dead", color: "maroon", getValue: s => s.dead }
 ];
 
-let mousePos = [0, 0];
+let mousePos = "unknown";
 
 export function render(container, simulatedStates, healthcareCapacity, lockdownPeriod, setLockdownPeriod) {
   let lastDay = simulatedStates.length - 1;
@@ -35,9 +35,12 @@ export function render(container, simulatedStates, healthcareCapacity, lockdownP
     x: d3.scaleLinear([0, lastDay], [paddingLeft, width - paddingRight]).clamp(true),
     y: d3.scaleLinear([0, 1], [height - paddingBottom, paddingTop])
   };
-  let shouldRenderTooltip = paddingTop <= mousePos[1] && mousePos[1] < height - paddingBottom;
-  let highlightedDay = Math.round(scales.x.invert(mousePos[0]));
+  let shouldRenderTooltip =
+    mousePos === "unknown" ||
+    (Array.isArray(mousePos) && paddingTop <= mousePos[1] && mousePos[1] < height - paddingBottom);
+  let highlightedDay = Array.isArray(mousePos) ? Math.round(scales.x.invert(mousePos[0])) : lastDay;
   let highlightedState = simulatedStates[highlightedDay];
+  let tooltipY = mousePos === "unknown" ? scales.y(1) : mousePos[1];
   let containerSelection = d3.select(container);
   let svg = containerSelection.selectAll("svg")
     .data([null])
@@ -49,7 +52,7 @@ export function render(container, simulatedStates, healthcareCapacity, lockdownP
       render(container, simulatedStates, healthcareCapacity, lockdownPeriod, setLockdownPeriod);
     })
     .on("mouseleave", () => {
-      mousePos = [0, 0];
+      mousePos = "outside";
       render(container, simulatedStates, healthcareCapacity, lockdownPeriod, setLockdownPeriod);
     })
     .call(xAxis(scales))
@@ -59,7 +62,7 @@ export function render(container, simulatedStates, healthcareCapacity, lockdownP
     .call(lockdownArrow(scales.x(lockdownPeriod.start), scales.x(lockdownPeriod.end)))
     .call(dayHighlighter(shouldRenderTooltip, scales.x(highlightedDay), height));
   containerSelection
-    .call(tooltip(shouldRenderTooltip, highlightedDay, highlightedState, scales.x, mousePos[1]));
+    .call(tooltip(shouldRenderTooltip, highlightedDay, highlightedState, scales, tooltipY));
 }
 
 const xAxis = scales => selection => {
@@ -291,26 +294,26 @@ const dayHighlighter = (shouldRender, x, svgHeight) => selection => {
     .attr("x2", x).attr("y2", svgHeight - paddingBottom);
 }
 
-const tooltip = (shouldRender, day, state, xScale, mouseY) => selection => {
+const tooltip = (shouldRender, day, state, scales, y) => selection => {
   let tooltip = selection.selectAll(".tooltip")
     .data(shouldRender ? [null] : [])
     .join("div")
     .attr("class", "tooltip")
     .style("position", "absolute")
-    .style("top", mouseY + "px")
-    .style("transform", "translateY(-50%)")
+    .style("top", y + "px")
+    .style("transform", `translateY(-${100 - 100 * scales.y.invert(y)}%)`)
     .style("background", "white")
     .style("padding", "5px 10px")
     .style("border", "1px solid gray")
     .style("pointer-events", "none");
-  if (day < xScale.domain()[1] / 2) {
+  if (day < scales.x.domain()[1] / 2) {
     tooltip
-      .style("left", `${xScale(day)}px`)
+      .style("left", `${scales.x(day)}px`)
       .style("right", null)
   } else {
     tooltip
       .style("left", null)
-      .style("right", `${paddingRight + xScale.range()[1] - xScale(day)}px`)
+      .style("right", `${paddingRight + scales.x.range()[1] - scales.x(day)}px`)
   }
   let stats = datasets
     .map(({ title, color, getValue }) => ({ title, color, value: getValue(state) }))
