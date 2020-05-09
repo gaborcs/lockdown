@@ -134,25 +134,28 @@ function App() {
               label="Infected on day 0"
               value={infectedPercentOnDay0}
               setValue={setInfectedPercentOnDay0}
-              inputProps={{ step: 0.0001, min: 0, max: 100 }}
+              step={0.0001}
             />
             <Field
               label="R0 without lockdown"
               value={r0WithoutLockdown}
               setValue={setR0WithoutLockdown}
-              inputProps={{ step: 0.1, min: 0 }}
+              step={0.1}
+              min={0}
             />
             <Field
               label="R0 with lockdown"
               value={r0WithLockdown}
               setValue={setR0WithLockdown}
-              inputProps={{ step: 0.1, min: 0 }}
+              step={0.1}
+              min={0}
             />
             <Field
               label="Average recovery time"
               value={averageRecoveryTime}
               setValue={setAverageRecoveryTime}
-              inputProps={{ step: 1, min: 0 }}
+              step={1}
+              min={0}
               InputProps={{
                 endAdornment: <InputAdornment position="end">days</InputAdornment>,
               }}
@@ -161,25 +164,26 @@ function App() {
               label="Fatality (IFR) under healthcare capacity"
               value={ifrPercentUnderHealthcareCapacity}
               setValue={setIfrPercentUnderHealthcareCapacity}
-              inputProps={{ step: 0.1, min: 0, max: 100 }}
+              step={0.1}
             />
             <PercentageField
               label="Fatality (IFR) over healthcare capacity"
               value={ifrPercentOverHealthcareCapacity}
               setValue={setIfrPercentOverHealthcareCapacity}
-              inputProps={{ step: 0.1, min: 0, max: 100 }}
+              step={0.1}
             />
             <PercentageField
               label="Healthcare capacity"
               value={healthcareCapacityPercent}
               setValue={setHealthcareCapacityPercent}
-              inputProps={{ step: 1, min: 0, max: 100 }}
+              step={1}
             />
             <Field
               label="Last day of simulation"
               value={lastDay}
               setValue={setLastDay}
-              inputProps={{ step: 1, min: 10 }}
+              step={1}
+              min={10}
             />
             <div className={classes.explainers}>
               <Typography variant="caption" paragraph>
@@ -206,6 +210,8 @@ function App() {
 function PercentageField(props) {
   return (
     <Field
+      min={0}
+      max={100}
       InputProps={{
         endAdornment: <InputAdornment position="end">%</InputAdornment>,
       }}
@@ -215,13 +221,16 @@ function PercentageField(props) {
 }
 
 function Field(props) {
-  let { setValue, ...otherProps } = props;
+  let { value, setValue, step, min, max, ...otherProps } = props;
   let classes = useStyles();
   return (
     <TextField
       type="number"
       variant="outlined"
+      value={value}
       onChange={changeHandler(setValue)}
+      inputProps={{ step, min, max }}
+      error={value < min || value > max}
       className={classes.textField}
       {...otherProps}
     />
